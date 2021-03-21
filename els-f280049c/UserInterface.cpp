@@ -32,9 +32,17 @@ const MESSAGE STARTUP_MESSAGE_2 =
   .displayTime = UI_REFRESH_RATE_HZ * 1.5
 };
 
+/*
 const MESSAGE STARTUP_MESSAGE_1 =
 {
  .message = { LETTER_C, LETTER_L, LETTER_O, LETTER_U, LETTER_G, LETTER_H, FOUR, TWO },
+ .displayTime = UI_REFRESH_RATE_HZ * 1.5,
+ .next = &STARTUP_MESSAGE_2
+};
+*/
+const MESSAGE STARTUP_MESSAGE_1 =
+{
+ .message = { LETTER_L, LETTER_A, LETTER_B, BLANK, LETTER_R, LETTER_A, LETTER_T },
  .displayTime = UI_REFRESH_RATE_HZ * 1.5,
  .next = &STARTUP_MESSAGE_2
 };

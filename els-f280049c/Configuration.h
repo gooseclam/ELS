@@ -40,11 +40,11 @@
 //================================================================================
 
 // For Imperial leadscrews: pitch in Threads Per Inch (TPI)
-#define LEADSCREW_TPI 12
+//#define LEADSCREW_TPI 12
 
 // For metric leadscrews: pitch in hundredths of a millimeter (HMM)
 // Example: 200hmm = 2mm
-//#define LEADSCREW_HMM 200
+#define LEADSCREW_HMM 300
 
 
 
@@ -64,8 +64,12 @@
 //================================================================================
 
 // Steps and microsteps
-#define STEPPER_MICROSTEPS 8
-#define STEPPER_RESOLUTION 200
+// Set gearbox on 2C - 1.5mm thread (3mm leadscrew turns 1 turn for 2 revs spindle 2:1)
+// Stepper has 2:1 reduction
+// STEPPER_MICROSTEPS = 2 * 2 = 4
+// Driver set to 2000 steps so 8000 pulses needed for 1 turn of leadscrew
+#define STEPPER_MICROSTEPS 4
+#define STEPPER_RESOLUTION 2000
 
 // Separate step and microstep settings for feed rates.  Redefine these if your
 // lathe has a separate feed drive train with a different ratio.
