@@ -120,7 +120,7 @@ LED_REG UserInterface::calculateLEDs()
     else
     {
         // power is off
-        leds.all = 0;
+        leds.word = 0;
     }
 
     return leds;

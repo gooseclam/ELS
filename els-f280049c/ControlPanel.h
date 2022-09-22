@@ -96,7 +96,7 @@ struct LED_BITS
 
 typedef union LED_REG
 {
-    Uint16 all;
+    Uint16 word;
     struct LED_BITS bit;
 } LED_REG;
 
@@ -123,35 +123,35 @@ class ControlPanel
 {
 private:
     // Common SPI Bus
-    SPIBus *spiBus;
+    SPIBus *m_spiBus;
 
     // Current RPM value; 4 decimal digits
-    Uint16 rpm;
+    Uint16 m_rpm;
 
     // Current displayed setting value, 4 digits
-    const Uint16 *value;
+    const Uint16 *m_value;
 
     // Current LED states
-    LED_REG leds;
+    LED_REG m_leds;
 
     // current key states
-    KEY_REG keys;
+    KEY_REG m_keys;
 
     // number of times current key state has been seen
-    KEY_REG stableKeys;
-    Uint16 stableCount;
+    KEY_REG m_stableKeys;
+    Uint16 m_stableCount;
 
     // current override message, or NULL if none
-    const Uint16 *message;
+    const Uint16 *m_message;
 
     // brightness, levels 1-8, 0=off
-    Uint16 brightness;
+    Uint16 m_brightness;
 
     // Derived state, calculated internally
-    Uint16 sevenSegmentData[8];
+    Uint16 m_sevenSegmentData[8];
 
     // dummy register, for SPI
-    Uint16 dummy;
+    Uint16 m_dummy;
 
     void decomposeRPM(void);
     void decomposeValue(void);
@@ -197,17 +197,17 @@ public:
 
 inline void ControlPanel :: setRPM(Uint16 rpm)
 {
-    this->rpm = rpm;
+    m_rpm = rpm;
 }
 
 inline void ControlPanel :: setValue(const Uint16 *value)
 {
-    this->value = value;
+    m_value = value;
 }
 
 inline void ControlPanel :: setLEDs(LED_REG leds)
 {
-    this->leds = leds;
+    m_leds = leds;
 }
 
 

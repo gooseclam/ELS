@@ -45,15 +45,15 @@
 
 ControlPanel :: ControlPanel(SPIBus *spiBus)
 {
-    this->spiBus = spiBus;
-    this->rpm = 0;
-    this->value = NULL;
-    this->leds.all = 0;
-    this->keys.all = 0;
-    this->stableKeys.all = 0;
-    this->stableCount = 0;
-    this->message = NULL;
-    this->brightness = 3;
+    m_spiBus = spiBus;
+    m_rpm = 0;
+    m_value = NULL;
+    m_leds.word = 0;
+    m_keys.all = 0;
+    m_stableKeys.all = 0;
+    m_stableCount = 0;
+    m_message = NULL;
+    m_brightness = 3;
 }
 
 void ControlPanel :: initHardware(void)
@@ -71,8 +71,8 @@ void ControlPanel :: initHardware(void)
 void ControlPanel :: configureSpiBus( void )
 {
     // configure the shared bus
-    this->spiBus->setThreeWire();
-    this->spiBus->setEightBits();
+    m_spiBus->setThreeWire();
+    m_spiBus->setEightBits();
 }
 
 Uint16 ControlPanel :: reverse_byte(Uint16 x)
@@ -138,36 +138,36 @@ Uint16 ControlPanel :: lcd_char(Uint16 x)
 void ControlPanel :: sendData()
 {
     int i;
-    Uint16 ledMask = this->leds.all;
+    Uint16 ledMask = m_leds.word;
     Uint16 briteVal = 0x80;
-    if( this->brightness > 0 ) {
-        briteVal = 0x87 + this->brightness;
+    if( m_brightness > 0 ) {
+        briteVal = 0x87 + m_brightness;
     }
 
     SpibRegs.SPICTL.bit.TALK = 1;
 
     CS_ASSERT;
-    spiBus->sendWord(reverse_byte(briteVal));       // brightness
+    m_spiBus->sendWord(reverse_byte(briteVal));       // brightness
     CS_RELEASE;
     DELAY_US(CS_RISE_TIME_US);              // give CS line time to register high
 
     CS_ASSERT;
-    spiBus->sendWord(reverse_byte(0x40));           // auto-increment
+    m_spiBus->sendWord(reverse_byte(0x40));           // auto-increment
     CS_RELEASE;
     DELAY_US(CS_RISE_TIME_US);              // give CS line time to register high
 
     CS_ASSERT;
-    spiBus->sendWord(reverse_byte(0xc0));           // display data
+    m_spiBus->sendWord(reverse_byte(0xc0));           // display data
     for( i=0; i < 8; i++ ) {
-        if( this->message != NULL )
+        if( m_message != NULL )
         {
-            spiBus->sendWord(this->message[i]);
+            m_spiBus->sendWord(m_message[i]);
         }
         else
         {
-            spiBus->sendWord(this->sevenSegmentData[i]);
+            m_spiBus->sendWord(m_sevenSegmentData[i]);
         }
-        spiBus->sendWord( (ledMask & 0x80) ? 0xff00 : 0x0000 );
+        m_spiBus->sendWord( (ledMask & 0x80) ? 0xff00 : 0x0000 );
         ledMask <<= 1;
     }
     CS_RELEASE;
@@ -178,23 +178,23 @@ void ControlPanel :: sendData()
 
 void ControlPanel :: decomposeRPM()
 {
-    Uint16 rpm = this->rpm;
+    Uint16 rpm = m_rpm;
     int i;
 
     for(i=3; i>=0; i--) {
-        this->sevenSegmentData[i] = (rpm == 0 && i != 3) ? 0 : lcd_char(rpm % 10);
+        m_sevenSegmentData[i] = (rpm == 0 && i != 3) ? 0 : lcd_char(rpm % 10);
         rpm = rpm / 10;
     }
 }
 
 void ControlPanel :: decomposeValue()
 {
-    if( this->value != NULL )
+    if( m_value != NULL )
     {
         int i;
         for( i=0; i < 4; i++ )
         {
-            this->sevenSegmentData[i+4] = this->value[i];
+            m_sevenSegmentData[i+4] = m_value[i];
         }
     }
 }
@@ -204,21 +204,21 @@ KEY_REG ControlPanel :: readKeys(void)
     SpibRegs.SPICTL.bit.TALK = 1;
 
     CS_ASSERT;
-    spiBus->sendWord(reverse_byte(0x40));           // auto-increment
+    m_spiBus->sendWord(reverse_byte(0x40));           // auto-increment
     CS_RELEASE;
     DELAY_US(CS_RISE_TIME_US);              // give CS line time to register high
 
     CS_ASSERT;
-    spiBus->sendWord(reverse_byte(0x42));
+    m_spiBus->sendWord(reverse_byte(0x42));
 
     SpibRegs.SPICTL.bit.TALK = 0;
 
     DELAY_US(DELAY_BEFORE_READING_US); // delay required by TM1638 per datasheet
 
-    Uint16 byte1 = spiBus->receiveWord();
-    Uint16 byte2 = spiBus->receiveWord();
-    Uint16 byte3 = spiBus->receiveWord();
-    Uint16 byte4 = spiBus->receiveWord();
+    Uint16 byte1 = m_spiBus->receiveWord();
+    Uint16 byte2 = m_spiBus->receiveWord();
+    Uint16 byte3 = m_spiBus->receiveWord();
+    Uint16 byte4 = m_spiBus->receiveWord();
 
     KEY_REG keyMask;
     keyMask.all =
@@ -241,9 +241,9 @@ KEY_REG ControlPanel :: getKeys()
     configureSpiBus();
 
     newKeys = readKeys();
-    if( isValidKeyState(newKeys) && isStable(newKeys) && newKeys.all != this->keys.all ) {
-        KEY_REG previousKeys = this->keys; // remember the previous stable value
-        this->keys = newKeys;
+    if( isValidKeyState(newKeys) && isStable(newKeys) && newKeys.all != m_keys.all ) {
+        KEY_REG previousKeys = m_keys; // remember the previous stable value
+        m_keys = newKeys;
 
         if( previousKeys.all == 0 ) {     // only act if the previous stable value was no keys pressed
             return newKeys;
@@ -272,32 +272,32 @@ bool ControlPanel :: isValidKeyState(KEY_REG testKeys) {
 
 bool ControlPanel :: isStable(KEY_REG testKeys) {
     // don't trust any read key state until we've seen it multiple times consecutively (noise filter)
-    if( testKeys.all != stableKeys.all )
+    if( testKeys.all != m_stableKeys.all )
     {
-        this->stableKeys = testKeys;
-        this->stableCount = 1;
+        m_stableKeys = testKeys;
+        m_stableCount = 1;
     }
     else
     {
-        if( this->stableCount < MIN_CONSECUTIVE_READS )
+        if( m_stableCount < MIN_CONSECUTIVE_READS )
         {
-            this->stableCount++;
+            m_stableCount++;
         }
     }
 
-    return this->stableCount >= MIN_CONSECUTIVE_READS;
+    return m_stableCount >= MIN_CONSECUTIVE_READS;
 }
 
 void ControlPanel :: setMessage( const Uint16 *message )
 {
-    this->message = message;
+    m_message = message;
 }
 
 void ControlPanel :: setBrightness( Uint16 brightness )
 {
     if( brightness > 8 ) brightness = 8;
 
-    this->brightness = brightness;
+    m_brightness = brightness;
 }
 
 void ControlPanel :: refresh()
