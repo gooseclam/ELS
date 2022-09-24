@@ -43,11 +43,7 @@
 //#define LEADSCREW_TPI 12
 
 // For metric leadscrews: pitch in hundredths of a millimeter (HMM)
-// Example: 200hmm = 2mm
 #define LEADSCREW_HMM 300
-
-
-
 
 //================================================================================
 //                                STEPPER/SERVO
@@ -85,9 +81,6 @@
 // Enable servo alarm feedback
 #define USE_ALARM_PIN
 
-
-
-
 //================================================================================
 //                                 ENCODER
 //
@@ -106,9 +99,6 @@
 #define ENCODER_USE_EQEP1
 //#define ENCODER_USE_EQEP2
 
-
-
-
 //================================================================================
 //                               CALCULATIONS
 //
@@ -118,8 +108,6 @@
 
 // Use floating-point math for gear ratios
 #define USE_FLOATING_POINT
-
-
 
 
 //================================================================================
@@ -134,9 +122,6 @@
 // See hardware version table above
 #define HARDWARE_VERSION 2
 
-
-
-
 //================================================================================
 //                                FEATURES
 //
@@ -146,9 +131,6 @@
 // Ignore all key presses when the machine is running.  Normally, only the mode
 // and direction keys are ignored.
 //#define IGNORE_ALL_KEYS_WHEN_RUNNING
-
-
-
 
 //================================================================================
 //                              VALIDATION/TRIP
@@ -161,7 +143,6 @@
 // output steps faster than this, it will get behind and will stop automatically
 // when the buffered step count exceeds this value.
 #define MAX_BUFFERED_STEPS 100
-
 
 //================================================================================
 //                               CPU / TIMING
@@ -183,6 +164,5 @@
 // Microprocessor system clock
 #define CPU_CLOCK_MHZ 100
 #define CPU_CLOCK_HZ (CPU_CLOCK_MHZ * 1000000)
-
 
 #endif // __CONFIGURATION_H
